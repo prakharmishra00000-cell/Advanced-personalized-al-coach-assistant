@@ -17,18 +17,19 @@ class HyperPersonalizedLDBot:
             self.client = None
 
     def execute_embedded_search(self, query: str, difficulty: str) -> Tuple[str, List[Dict[str, str]], List[Dict[str, str]]]:
+        # Upgraded aggressively premium keywords to force high-end search returns
         if "Beginner" in difficulty:
-            search_keywords_text = f"{query} premium beginner masterclass fundamentals guide"
-            search_keywords_video = f"{query} fundamental masterclass tutorial youtube"
-            search_keywords_playlist = f"{query} complete beginner bootcamp playlist youtube"
+            search_keywords_text = f"{query} premium beginner masterclass fundamentals guide course"
+            search_keywords_video = f"{query} premium fundamental masterclass tutorial youtube course"
+            search_keywords_playlist = f"{query} ultimate complete beginner bootcamp premium playlist youtube"
         elif "Enterprise" in difficulty:
-            search_keywords_text = f"{query} enterprise system architecture deep dive production masterclass"
-            search_keywords_video = f"{query} enterprise system architecture advanced configuration workshop youtube"
-            search_keywords_playlist = f"{query} masterclass system design engineering playlist youtube"
+            search_keywords_text = f"{query} enterprise system architecture deep dive production masterclass engineering"
+            search_keywords_video = f"{query} enterprise system architecture advanced configuration workshop premium youtube"
+            search_keywords_playlist = f"{query} masterclass system design engineering architecture premium playlist youtube"
         else: # Production-Ready
-            search_keywords_text = f"{query} production deployment blueprint real world implementation"
-            search_keywords_video = f"{query} production grade practical engineering implementation tutorial youtube"
-            search_keywords_playlist = f"{query} complete production setup deployment playlist youtube"
+            search_keywords_text = f"{query} production deployment blueprint real world implementation premium masterclass"
+            search_keywords_video = f"{query} production grade practical engineering implementation tutorial premium youtube"
+            search_keywords_playlist = f"{query} complete production setup deployment enterprise playlist youtube"
 
         search_context = "Premium enterprise architectural blueprint matrix."
         compiled_videos = []
@@ -36,11 +37,11 @@ class HyperPersonalizedLDBot:
         
         try:
             with DDGS() as ddg:
-                text_results = list(ddg.text(keywords=search_keywords_text, max_results=3))
+                text_results = list(ddg.text(keywords=search_keywords_text, max_results=4))
                 if text_results:
                     search_context = "\n".join([f"Source Data: {r.get('body', '')[:250]}" for r in text_results])
                 
-                video_ddgs_results = list(ddg.videos(keywords=search_keywords_video, max_results=3))
+                video_ddgs_results = list(ddg.videos(keywords=search_keywords_video, max_results=4))
                 for v in video_ddgs_results:
                     link = v.get("content", v.get("url", ""))
                     if "youtube.com/watch?v=" in link or "youtu.be/" in link:
@@ -60,7 +61,7 @@ class HyperPersonalizedLDBot:
                                 "duration": v.get("duration", "N/A")
                             })
 
-                playlist_ddgs_results = list(ddg.videos(keywords=search_keywords_playlist, max_results=2))
+                playlist_ddgs_results = list(ddg.videos(keywords=search_keywords_playlist, max_results=3))
                 for p in playlist_ddgs_results:
                     link = p.get("content", p.get("url", ""))
                     if "list=" in link:
@@ -73,10 +74,11 @@ class HyperPersonalizedLDBot:
                             "channel": p.get("publisher", "Premium Architecture Channel")
                         })
                 
+                # Ultimate Fallback: Force absolute direct URI links if DDG video registers are momentarily empty
                 if not compiled_videos:
-                    fallback_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}+" + difficulty.lower().split()[0] + "+masterclass"
+                    fallback_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}+" + difficulty.lower().split()[0] + "+premium+masterclass"
                     compiled_videos.append({
-                        "title": f"Premium Engineering Results for: {query.capitalize()} ({difficulty})",
+                        "title": f"Premium Engineering Direct Results for: {query.capitalize()} ({difficulty})",
                         "url": fallback_url,
                         "embed": fallback_url,
                         "channel": "YouTube Premium Engineering Directory",
@@ -84,9 +86,9 @@ class HyperPersonalizedLDBot:
                     })
                     
                 if not compiled_playlists:
-                    fallback_p_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}+premium+masterclass+playlist"
+                    fallback_p_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}+premium+masterclass+playlist+course&sp=EgIQAw%253D%253D"
                     compiled_playlists.append({
-                        "title": f"Premium Masterclass Track for: {query.capitalize()}",
+                        "title": f"Premium Masterclass Track (Direct Link) for: {query.capitalize()}",
                         "url": fallback_p_url,
                         "embed": fallback_p_url,
                         "channel": "YouTube Premium Engineering Directory"
@@ -139,7 +141,7 @@ class HyperPersonalizedLDBot:
                 <div class="iframe-container">
                     <iframe src="{v['embed']}" frameborder="0" allowfullscreen></iframe>
                 </div>
-                <p class="media-link"><a href="{v['url']}" target="_blank">🔗 Access Premium Engineering Lab</a></p>
+                <p class="media-link"><a href="{v['url']}" target="_blank">🔗 Direct Access Link: Watch Premium Lab on YouTube</a></p>
             </div>
             """
 
@@ -152,7 +154,7 @@ class HyperPersonalizedLDBot:
                 <div class="iframe-container">
                     <iframe src="{p['embed']}" frameborder="0" allowfullscreen></iframe>
                 </div>
-                <p class="media-link"><a href="{p['url']}" target="_blank">🔗 Access Masterclass Series</a></p>
+                <p class="media-link"><a href="{p['url']}" target="_blank">🔗 Direct Access Link: Watch Masterclass Series Playlist</a></p>
             </div>
             """
 
