@@ -1,49 +1,91 @@
 import streamlit as st
-import streamlit.components.v1 as components
 from backend_agent import HyperPersonalizedLDBot
+import os
 
-st.set_page_config(page_title="Hyper-Personalized AI L&D Coach", page_icon="🎓", layout="wide")
+st.set_page_config(page_title="Custom AI L&D Coach", layout="wide", initial_sidebar_state="expanded")
 
-st.markdown("""
-    <style>
-    .main-title { font-size: 2.8rem; color: #1e3a8a; font-weight: 800; margin-bottom: 0.5rem; text-align: center; }
-    .sub-title { font-size: 1.2rem; color: #475569; text-align: center; margin-bottom: 2.5rem; }
-    div.stButton > button:first-child { background-color: #2563eb; color: white; font-weight: bold; padding: 0.6rem 2.5rem; border-radius: 8px; border: none; width: 100%; transition: all 0.2s ease; }
-    div.stButton > button:first-child:hover { background-color: #1d4ed8; transform: translateY(-1px); }
-    </style>
-""", unsafe_allow_html=True)
-
-st.markdown('<div class="main-title">🎓 Hyper-Personalized AI L&D Coach</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-title">Real-Time Continuous Up-skilling Engine with Multi-Model Cluster Failover</div>', unsafe_allow_html=True)
-
+# Initialize Session State
 if "coach" not in st.session_state:
     st.session_state.coach = HyperPersonalizedLDBot()
-if "workspace_md" not in st.session_state:
-    st.session_state.workspace_md = ""
-if "workspace_html" not in st.session_state:
-    st.session_state.workspace_html = ""
 
-user_input = st.text_input("💡 What precise technology matrix, leadership skill, or operational standard are you mastering today?", placeholder="e.g., Deploying High-Performance Distributed Redis Clusters on Kubernetes")
+if "generated" not in st.session_state:
+    st.session_state.generated = False
 
-if st.button("🚀 Synthesize Customized Curriculum Asset Stack"):
-    if not user_input.strip():
-        st.warning("⚠️ Please provide an actionable operational learning prompt target.")
+if "markdown_output" not in st.session_state:
+    st.session_state.markdown_output = ""
+
+if "html_output" not in st.session_state:
+    st.session_state.html_output = ""
+
+# Sidebar Controls
+st.sidebar.title("⚙️ L&D Configuration Engine")
+st.sidebar.markdown("Configure enterprise learning settings below.")
+
+# Curriculum Complexity Tier
+selected_difficulty = st.sidebar.selectbox(
+    "🧠 Curriculum Complexity Tier",
+    options=["Beginner / Foundational", "Production-Ready", "Enterprise Architect"],
+    index=1
+)
+
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 🔑 System Integrity Check")
+api_key_status = os.getenv("GROQ_API_KEY") or (st.session_state.coach.client.api_key if st.session_state.coach.client else None)
+if api_key_status:
+    st.sidebar.success("Groq API Key Detected")
+else:
+    st.sidebar.error("Configure your GROQ_API_KEY environment variable inside Render.")
+
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 💡 Instructions")
+st.sidebar.info("Enter a specific skill, tool, or architecture framework in the main box and hit **Generate Training Curriculum**.")
+
+# Main Page Layout
+st.markdown("<h1>🎓 Hyper-Personalized AI L&D Course Generator</h1>", unsafe_allow_html=True)
+st.markdown("<p>Accelerating workforce readiness with real-time web intelligence and video courses.</p>", unsafe_allow_html=True)
+
+user_prompt = st.text_input("Enter target domain, skill, or framework:", placeholder="e.g., Deploying Distributed Redis Clusters")
+
+if st.button("🚀 Generate Training Curriculum", type="primary"):
+    if not user_prompt:
+        st.warning("Please enter a target domain or skill to generate a curriculum.")
     else:
-        with st.spinner("⚡ Scouring live web channels and rotating across your failover model cluster..."):
-            md_out, html_out, _, _ = st.session_state.coach.execute_unlimited_generation(user_input)
+        with st.spinner("⚡ Compiling real-time textbook, labs, and streaming assets..."):
+            md_out, html_out, videos, playlists = st.session_state.coach.execute_unlimited_generation(
+                user_prompt, 
+                difficulty=selected_difficulty
+            )
             
-            st.session_state.workspace_md = md_out
-            st.session_state.workspace_html = html_out
+            if "🚨 Groq API Error" in md_out or "⚠️ Setup Error" in md_out:
+                st.error(md_out)
+            else:
+                st.session_state.markdown_output = md_out
+                st.session_state.html_output = html_out
+                st.session_state.generated = True
 
-if st.session_state.workspace_md:
-    if "Setup Error" in st.session_state.workspace_md or "Network Cluster Limit" in st.session_state.workspace_md:
-        st.error(st.session_state.workspace_md)
-    else:
-        tab1, tab2 = st.tabs(["🖥️ Interactive Training Workspace", "📄 Clean Markdown Notebook View"])
-        
-        with tab1:
-            st.info("💡 Pro Tip: Use the 'Export as PDF' button inside the layout workspace to instantly save your technical blueprint textbook.")
-            components.html(st.session_state.workspace_html, height=1200, scrolling=True)
-            
-        with tab2:
-            st.code(st.session_state.workspace_md, language="markdown")
+# Display Course Workspace if Generated
+if st.session_state.generated:
+    st.success("✨ Curriculum successfully compiled! View the embedded interactive workspace below.")
+    
+    # UI Button for Interactive Quiz
+    st.markdown("---")
+    st.markdown("<h2>⚡ Advanced Features</h2>", unsafe_allow_html=True)
+    if st.button("📝 Generate Interactive Chapter Quiz", type="secondary"):
+        with st.spinner("🤖 Assembling knowledge benchmark test..."):
+            quiz_markdown = st.session_state.coach.generate_quiz(user_prompt)
+            st.markdown("### 🧠 Generated Mastery Quiz")
+            st.markdown(quiz_markdown)
+    
+    st.markdown("---")
+    st.markdown("<h2>🖥️ Interactive Training Workspace</h2>", unsafe_allow_html=True)
+    
+    # Render the Mobile-Compatible HTML Output
+    st.components.v1.html(st.session_state.html_output, height=1100, scrolling=True)
+
+    st.markdown("---")
+    st.download_button(
+        label="💾 Download Course Markdown",
+        data=st.session_state.markdown_output,
+        file_name="LND_Course_Output.md",
+        mime="text/markdown"
+    )
