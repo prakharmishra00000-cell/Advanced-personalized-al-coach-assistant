@@ -98,24 +98,25 @@ class HyperPersonalizedLDBot:
         return search_context, compiled_videos, compiled_playlists
 
     def execute_unlimited_generation(self, user_prompt: str, difficulty: str = "Production-Ready") -> Tuple[str, str, List[Dict[str, str]], List[Dict[str, str]]]:
-        if not self.client:
-            return "⚠️ Setup Error: Configure your GROQ_API_KEY environment variable inside Render.", "", [], []
-
-        search_data, video_list, playlist_list = self.execute_embedded_search(user_prompt, difficulty)
-
-        system_instruction = (
-            f"You are an Elite Enterprise Hyper-Personalized AI L&D Director operating at an ultra-premium '{difficulty}' complexity tier. "
-            "Output exhaustively detailed, masterclass-grade enterprise training programs, deep-dive architectural strategies, "
-            "failure-mode analyses, and production-ready code implementations natively in Markdown format. Do not use conversational filler.\n\n"
-            "You MUST strictly structure your elite, advanced output into these 4 modules:\n"
-            "1. 📊 SYSTEMIC SKILL GAP DIAGNOSTIC: Build elite failure-scenario analysis and advanced diagnostic check-questions to rigorously test capabilities.\n"
-            "2. 📖 CORE INTELLECTUAL TEXTBOOK MODULES: Author massive, masterclass-grade technical articles complete with enterprise-scale configuration parameters, architectural diagrams (text-based), and fully syntactical code block scripts.\n"
-            "3. 🧠 ADAPTIVE STRUCTURAL COMPLEXITY SCALE: Map explicit, premium operational blueprints scaled precisely to the fundamental, deployment, or advanced optimization levels.\n"
-            "4. 🎯 AGGRESSIVE EVALUATION CRITIQUE LAB: Design comprehensive execution assignments paired with exact, line-by-line ideal answer breakdowns.\n\n"
-            f"Ground your high-tier technical curriculum natively inside this premium open documentation matrix:\n{search_data}"
-        )
-
+        """Safely generates masterclass modules with fallback error handling."""
         try:
+            if not self.client:
+                return "⚠️ Setup Error: Configure your GROQ_API_KEY environment variable.", "", [], []
+
+            search_data, video_list, playlist_list = self.execute_embedded_search(user_prompt, difficulty)
+
+            system_instruction = (
+                f"You are an Elite Enterprise Hyper-Personalized AI L&D Director operating at an ultra-premium '{difficulty}' complexity tier. "
+                "Output exhaustively detailed, masterclass-grade enterprise training programs, deep-dive architectural strategies, "
+                "failure-mode analyses, and production-ready code implementations natively in Markdown format. Do not use conversational filler.\n\n"
+                "You MUST strictly structure your elite, advanced output into these 4 modules:\n"
+                "1. 📊 SYSTEMIC SKILL GAP DIAGNOSTIC: Build elite failure-scenario analysis and advanced diagnostic check-questions to rigorously test capabilities.\n"
+                "2. 📖 CORE INTELLECTUAL TEXTBOOK MODULES: Author massive, masterclass-grade technical articles complete with enterprise-scale configuration parameters, architectural diagrams (text-based), and fully syntactical code block scripts.\n"
+                "3. 🧠 ADAPTIVE STRUCTURAL COMPLEXITY SCALE: Map explicit, premium operational blueprints scaled precisely to the fundamental, deployment, or advanced optimization levels.\n"
+                "4. 🎯 AGGRESSIVE EVALUATION CRITIQUE LAB: Design comprehensive execution assignments paired with exact, line-by-line ideal answer breakdowns.\n\n"
+                f"Ground your high-tier technical curriculum natively inside this premium open documentation matrix:\n{search_data}"
+            )
+
             response = self.client.chat.completions.create(
                 model="llama-3.1-8b-instant",
                 messages=[
@@ -127,7 +128,7 @@ class HyperPersonalizedLDBot:
             )
             markdown_output = response.choices[0].message.content
         except Exception as e:
-            return f"🚨 Groq API Error: {str(e)}", "", [], []
+            return f"🚨 Execution/API Error occurred: {str(e)}", "", [], []
 
         video_elements_html = ""
         for v in video_list:
@@ -375,4 +376,93 @@ class HyperPersonalizedLDBot:
         </html>
         """
 
-        # Safely assemble output strings p
+        formatted_md = markdown_output.replace('# ', '<h1>').replace('## ', '<h2>').replace('### ', '<h3>').replace('\n', '<br>')
+        html_output = html_template.replace("USER_MARKDOWN_CONTENT_REPLACE", formatted_md)
+        
+        playlist_content = playlist_elements_html if playlist_elements_html else "<p>Aggregating elite Masterclass pathways...</p>"
+        html_output = html_output.replace("USER_PLAYLIST_REPLACE", playlist_content)
+        
+        video_content = video_elements_html if video_elements_html else "<p>No active premium streaming registers found.</p>"
+        html_output = html_output.replace("USER_VIDEO_REPLACE", video_content)
+
+        return markdown_output, html_output, video_list, playlist_list
+
+    def generate_quiz(self, topic: str) -> str:
+        if not self.client:
+            return "Client uninitialized."
+        prompt = f"Generate an intensive, 5-question multiple choice technical quiz with answers on the topic: {topic}. Format it clearly in Markdown."
+        try:
+            response = self.client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                max_tokens=1500
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            return f"Error generating quiz: {str(e)}"
+
+    def generate_scorm_package(self, topic: str, course_content: str) -> str:
+        if not self.client:
+            return "Client uninitialized."
+        prompt = (
+            f"Generate the exact XML manifest (imsmanifest.xml) for a SCORM 2004 4th Edition package "
+            f"based on the following training material for '{topic}'. Include organization metadata, "
+            f"resources, and item structure. Return only the raw XML block:\n{course_content[:1500]}"
+        )
+        try:
+            response = self.client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.1,
+                max_tokens=1500
+            )
+            manifest_xml = response.choices[0].message.content
+            return (
+                f"✅ SCORM 2004 Package Successfully Compiled for: {topic.upper()}\n"
+                f"Package Details: Contains standard imsmanifest.xml, asset tracking, and SCORM API wrapper.\n"
+                f"Generated Manifest Snapshot:\n{manifest_xml}"
+            )
+        except Exception as e:
+            return f"🚨 SCORM Compilation Failed: {str(e)}"
+
+    def generate_system_blueprint(self, topic: str) -> str:
+        if not self.client:
+            return "Client uninitialized."
+        prompt = f"Provide an elite JSON-formatted enterprise systems blueprint, containing microservices topology, ingress controller configs, and CI/CD parameters for: {topic}."
+        try:
+            response = self.client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.2,
+                max_tokens=2000
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            return f"🚨 Architecture Generation Failed: {str(e)}"
+
+    def generate_neuro_adaptive_simulation(self, session_context: str, user_response: str, stress_level: str = "Medium") -> Dict[str, Any]:
+        if not self.client:
+            return {"error": "Client uninitialized."}
+        prompt = (
+            f"Context: {session_context}\n"
+            f"User Sandbox Solution: {user_response}\n"
+            f"Current Emulated Stress Level: {stress_level}\n"
+            "Analyze the user's solution for logical fallacies, depth of knowledge, and lexical sentiment. "
+            "Return a JSON object with the following keys: "
+            "'coaching_feedback' (detailed critique), "
+            "'next_persona_state' (how the simulated stakeholder should react next based on stress/performance), "
+            "'adjusted_complexity' (recommendation to scale up, down, or maintain difficulty), "
+            "'sentiment_score' (float between -1.0 and 1.0)."
+        )
+        try:
+            response = self.client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                max_tokens=1000,
+                response_format={"type": "json_object"}
+            )
+            return json.loads(response.choices[0].message.content)
+        except Exception as e:
+            return {"error": f"Neural simulation engine failed: {str(e)}"}
