@@ -22,60 +22,67 @@ class HyperPersonalizedLDBot:
         
         try:
             with DDGS() as ddg:
-                # 1. Broaden text search for context and reliable URL extraction
-                text_results = list(ddg.text(keywords=f"{query} tutorial course youtube", max_results=5))
-                scraped_youtube_links = []
-                
+                # 1. Fetch relevant body text for course textbook generation
+                text_results = list(ddg.text(keywords=f"{query} tutorial course", max_results=3))
                 if text_results:
                     search_context = "\n".join([f"Source Data: {r.get('body', '')[:200]}" for r in text_results])
-                    
-                    # Extract any youtube links found in the text result bodies/hrefs
-                    for r in text_results:
-                        all_text = (r.get('body', '') + " " + r.get('href', '')).lower()
-                        found_urls = re.findall(r'(https?://(?:www\.)?(?:youtube\.com|youtu\.be)/\S+)', all_text)
-                        for url in found_urls:
-                            clean_url = url.strip(').,;')
-                            if clean_url not in scraped_youtube_links:
-                                scraped_youtube_links.append(clean_url)
-
-                # 2. Populate Videos from scraped links or fallback to search queries
-                if scraped_youtube_links:
-                    for link in scraped_youtube_links[:3]:
-                        embed_link = link
-                        if "youtube.com/watch?v=" in link:
+                
+                # 2. Query DuckDuckGo Video API for actual specific videos
+                video_ DDGS_results = list(ddg.videos(keywords=f"{query} youtube", max_results=3))
+                for v in video_DDGS_results:
+                    link = v.get("content", v.get("url", ""))
+                    # Validate and extract real YouTube watch links
+                    if "youtube.com/watch?v=" in link or "youtu.be/" in link:
+                        video_id = ""
+                        if "v=" in link:
                             video_id = link.split("v=")[1].split("&")[0]
-                            embed_link = f"https://www.youtube.com/embed/{video_id}"
                         elif "youtu.be/" in link:
                             video_id = link.split("youtu.be/")[1].split("?")[0]
-                            embed_link = f"https://www.youtube.com/embed/{video_id}"
                             
-                        compiled_videos.append({
-                            "title": f"Targeted Walkthrough: {query.capitalize()}",
+                        if video_id:
+                            embed_link = f"https://www.youtube.com/embed/{video_id}"
+                            compiled_videos.append({
+                                "title": v.get("title", f"Walkthrough: {query}"),
+                                "url": link,
+                                "embed": embed_link,
+                                "channel": v.get("publisher", "YouTube Creator"),
+                                "duration": v.get("duration", "N/A")
+                            })
+
+                # 3. Query DuckDuckGo Video API for actual specific playlists
+                playlist_DDGS_results = list(ddg.videos(keywords=f"{query} playlist youtube", max_results=2))
+                for p in playlist_DDGS_results:
+                    link = p.get("content", p.get("url", ""))
+                    # Validate and extract real YouTube playlist links
+                    if "list=" in link:
+                        playlist_id = link.split("list=")[1].split("&")[0]
+                        embed_link = f"https://www.youtube.com/embed/videoseries?list={playlist_id}"
+                        compiled_playlists.append({
+                            "title": p.get("title", f"Playlist Track: {query}"),
                             "url": link,
                             "embed": embed_link,
-                            "channel": "Discovered Web Source",
-                            "duration": "N/A"
+                            "channel": p.get("publisher", "YouTube Creator")
                         })
                 
-                # Fallback if scraping is empty: generate dynamic YouTube search links
+                # Resilient Fallbacks: If direct parsing yields zero items, construct exact live YouTube search query links
                 if not compiled_videos:
                     fallback_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}"
                     compiled_videos.append({
-                        "title": f"Video Results for: {query}",
+                        "title": f"Live Search Results for: {query.capitalize()}",
                         "url": fallback_url,
                         "embed": fallback_url,
-                        "channel": "YouTube Search Engine",
+                        "channel": "YouTube Search Directory",
                         "duration": "N/A"
                     })
-
-                # 3. Populate Playlists
-                fallback_playlist_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}+playlist"
-                compiled_playlists.append({
-                    "title": f"Playlist Series: {query.capitalize()}",
-                    "url": fallback_playlist_url,
-                    "embed": fallback_playlist_url,
-                    "channel": "YouTube Curriculum Network"
-                })
+                    
+                if not compiled_playlists:
+                    fallback_p_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}+playlist"
+                    compiled_playlists.append({
+                        "title": f"Live Playlist Track for: {query.capitalize()}",
+                        "url": fallback_p_url,
+                        "embed": fallback_p_url,
+                        "channel": "YouTube Search Directory"
+                    })
 
         except Exception as e:
             print(f"⚠️ Embedded scraper log notice: {str(e)}")
@@ -98,7 +105,7 @@ class HyperPersonalizedLDBot:
             "3. 🧠 ADAPTIVE STRUCTURAL COMPLEXITY SCALE: Map explicit operational strategies for fundamentals, production integrations, and advanced architecture optimizations.\n"
             "4. 🎯 AGGRESSIVE EVALUATION CRITIQUE LAB: Design comprehensive execution assignments along with fully engineered ideal answer breakdowns.\n\n"
             f"Ground your intelligence natively inside this real-time web documentation matrix:\n{search_data}"
-        )
+        ).format(difficulty)
 
         try:
             response = self.client.chat.completions.create(
