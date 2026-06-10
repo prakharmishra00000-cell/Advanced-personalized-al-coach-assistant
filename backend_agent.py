@@ -15,23 +15,36 @@ class HyperPersonalizedLDBot:
         else:
             self.client = None
 
-    def execute_embedded_search(self, query: str) -> Tuple[str, List[Dict[str, str]], List[Dict[str, str]]]:
-        search_context = "Baseline operational target operational matrix."
+    def execute_embedded_search(self, query: str, difficulty: str) -> Tuple[str, List[Dict[str, str]], List[Dict[str, str]]]:
+        # Adapt search keywords based on the selected complexity mode
+        if "Beginner" in difficulty:
+            search_keywords_text = f"{query} beginner tutorial fundamentals"
+            search_keywords_video = f"{query} beginner tutorial youtube"
+            search_keywords_playlist = f"{query} course for beginners playlist youtube"
+        elif "Enterprise" in difficulty:
+            search_keywords_text = f"{query} enterprise architecture workshop production tutorial"
+            search_keywords_video = f"{query} enterprise advanced configuration tutorial youtube"
+            search_keywords_playlist = f"{query} architecture masterclass playlist youtube"
+        else: # Production-Ready
+            search_keywords_text = f"{query} production deployment guide example"
+            search_keywords_video = f"{query} production ready practical tutorial youtube"
+            search_keywords_playlist = f"{query} full project setup playlist youtube"
+
+        search_context = "Operational target baseline operational matrix."
         compiled_videos = []
         compiled_playlists = []
         
         try:
             with DDGS() as ddg:
-                # 1. Fetch relevant body text for course textbook generation
-                text_results = list(ddg.text(keywords=f"{query} tutorial course", max_results=3))
+                # 1. Fetch relevant body text tailored to the mode
+                text_results = list(ddg.text(keywords=search_keywords_text, max_results=3))
                 if text_results:
                     search_context = "\n".join([f"Source Data: {r.get('body', '')[:200]}" for r in text_results])
                 
-                # 2. Query DuckDuckGo Video API for actual specific videos
-                video_ddgs_results = list(ddg.videos(keywords=f"{query} youtube", max_results=3))
+                # 2. Query DuckDuckGo Video API for specific videos
+                video_ddgs_results = list(ddg.videos(keywords=search_keywords_video, max_results=3))
                 for v in video_ddgs_results:
                     link = v.get("content", v.get("url", ""))
-                    # Validate and extract real YouTube watch links
                     if "youtube.com/watch?v=" in link or "youtu.be/" in link:
                         video_id = ""
                         if "v=" in link:
@@ -42,33 +55,32 @@ class HyperPersonalizedLDBot:
                         if video_id:
                             embed_link = f"https://www.youtube.com/embed/{video_id}"
                             compiled_videos.append({
-                                "title": v.get("title", f"Walkthrough: {query}"),
+                                "title": v.get("title", f"Lab Walkthrough: {query}"),
                                 "url": link,
                                 "embed": embed_link,
-                                "channel": v.get("publisher", "YouTube Creator"),
+                                "channel": v.get("publisher", "Video Creator Network"),
                                 "duration": v.get("duration", "N/A")
                             })
 
-                # 3. Query DuckDuckGo Video API for actual specific playlists
-                playlist_DDGS_results = list(ddg.videos(keywords=f"{query} playlist youtube", max_results=2))
-                for p in playlist_DDGS_results:
+                # 3. Query DuckDuckGo Video API for playlists
+                playlist_ddgs_results = list(ddg.videos(keywords=search_keywords_playlist, max_results=2))
+                for p in playlist_ddgs_results:
                     link = p.get("content", p.get("url", ""))
-                    # Validate and extract real YouTube playlist links
                     if "list=" in link:
                         playlist_id = link.split("list=")[1].split("&")[0]
                         embed_link = f"https://www.youtube.com/embed/videoseries?list={playlist_id}"
                         compiled_playlists.append({
-                            "title": p.get("title", f"Playlist Track: {query}"),
+                            "title": p.get("title", f"Learning Track: {query}"),
                             "url": link,
                             "embed": embed_link,
-                            "channel": p.get("publisher", "YouTube Creator")
+                            "channel": p.get("publisher", "Curriculum Creator")
                         })
                 
-                # Resilient Fallbacks: If direct parsing yields zero items, construct exact live YouTube search query links
+                # Resilient Fallbacks
                 if not compiled_videos:
-                    fallback_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}"
+                    fallback_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}+" + difficulty.lower().split()[0]
                     compiled_videos.append({
-                        "title": f"Live Search Results for: {query.capitalize()}",
+                        "title": f"Results for: {query.capitalize()} ({difficulty})",
                         "url": fallback_url,
                         "embed": fallback_url,
                         "channel": "YouTube Search Directory",
@@ -78,14 +90,14 @@ class HyperPersonalizedLDBot:
                 if not compiled_playlists:
                     fallback_p_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}+playlist"
                     compiled_playlists.append({
-                        "title": f"Live Playlist Track for: {query.capitalize()}",
+                        "title": f"Playlist Track for: {query.capitalize()}",
                         "url": fallback_p_url,
                         "embed": fallback_p_url,
                         "channel": "YouTube Search Directory"
                     })
 
         except Exception as e:
-            print(f"⚠️ Embedded scraper log notice: {str(e)}")
+            print(f"⚠️ Search engine log notice: {str(e)}")
             
         return search_context, compiled_videos, compiled_playlists
 
@@ -93,7 +105,7 @@ class HyperPersonalizedLDBot:
         if not self.client:
             return "⚠️ Setup Error: Configure your GROQ_API_KEY environment variable inside Render.", "", [], []
 
-        search_data, video_list, playlist_list = self.execute_embedded_search(user_prompt)
+        search_data, video_list, playlist_list = self.execute_embedded_search(user_prompt, difficulty)
 
         system_instruction = (
             f"You are an Elite Enterprise Hyper-Personalized AI L&D Director operating at an '{difficulty}' complexity tier. "
@@ -163,7 +175,7 @@ class HyperPersonalizedLDBot:
                 p, li, div {{ font-size: 0.95em; word-wrap: break-word; box-sizing: border-box; }}
                 code {{ background: #f1f5f9; padding: 2px 5px; border-radius: 4px; font-family: monospace; font-size: 0.8em; color: #0f172a; word-break: break-all; word-wrap: break-word; overflow-wrap: anywhere; }}
                 pre {{ background: #0f172a; color: #f8fafc; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.75em; box-sizing: border-box; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); white-space: pre-wrap; word-wrap: break-word; word-break: break-word; }}
-                pre code {{ background: transparent; color: inherit; padding: 0; font-size: 1e-1; word-break: break-word; }}
+                pre code {{ background: transparent; color: inherit; padding: 0; font-size: 1em; word-break: break-word; }}
                 .badge {{ background: #f0fdf4; color: #16a34a; padding: 5px 10px; border-radius: 20px; font-size: 0.65em; font-weight: bold; border: 1px solid #bbf7d0; display: inline-block; }}
                 .interactive-box {{ background: #fafafa; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; margin-top: 15px; box-sizing: border-box; width: 100%; }}
                 .action-btn {{ background: #2563eb; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.75em; }}
