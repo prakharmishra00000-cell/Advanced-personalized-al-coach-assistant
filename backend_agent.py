@@ -155,14 +155,14 @@ class HyperPersonalizedLDBot:
             </div>
             """
 
-        html_output = f"""
+        html_template = """
         <!DOCTYPE html>
         <html>
         <head>
             <title>Premium AI Coach L&D Workspace</title>
             <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
             <style>
-                :root {{
+                :root {
                     --bg-app: #050810;
                     --bg-card: #090d1a;
                     --border-card: #0ea5e9;
@@ -171,9 +171,9 @@ class HyperPersonalizedLDBot:
                     --primary-glow: #38bdf8;
                     --accent-color: #0ea5e9;
                     --accent-premium: #10b981;
-                }}
-                html {{ overflow-x: hidden; width: 100%; }}
-                body {{
+                }
+                html { overflow-x: hidden; width: 100%; }
+                body {
                     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
                     line-height: 1.7;
                     color: var(--text-main);
@@ -186,8 +186,8 @@ class HyperPersonalizedLDBot:
                     overflow-x: hidden;
                     background-image: radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.03) 0%, transparent 40%),
                                       radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.03) 0%, transparent 40%);
-                }}
-                .container {{
+                }
+                .container {
                     background: rgba(9, 13, 26, 0.75);
                     border: 1px solid #1e293b;
                     backdrop-filter: blur(16px);
@@ -197,8 +197,8 @@ class HyperPersonalizedLDBot:
                     width: 100%;
                     box-sizing: border-box;
                     overflow-wrap: anywhere;
-                }}
-                h1 {{
+                }
+                h1 {
                     color: #38bdf8;
                     border-bottom: 2px solid #0ea5e9;
                     padding-bottom: 18px;
@@ -207,8 +207,8 @@ class HyperPersonalizedLDBot:
                     letter-spacing: -0.025em;
                     text-transform: uppercase;
                     text-shadow: 0 0 10px rgba(14, 165, 233, 0.3);
-                }}
-                h2 {{
+                }
+                h2 {
                     color: var(--primary-glow);
                     margin-top: 40px;
                     border-left: 5px solid var(--accent-color);
@@ -217,11 +217,11 @@ class HyperPersonalizedLDBot:
                     word-wrap: break-word;
                     letter-spacing: -0.02em;
                     text-shadow: 0 0 8px rgba(56, 189, 248, 0.2);
-                }}
-                h3 {{ font-size: 1.15em; word-wrap: break-word; color: #38bdf8; }}
-                p, li, div {{ font-size: 1em; color: var(--text-main); word-wrap: break-word; box-sizing: border-box; }}
-                strong {{ color: #38bdf8; text-shadow: 0 0 6px rgba(56, 189, 248, 0.3); }}
-                code {{
+                }
+                h3 { font-size: 1.15em; word-wrap: break-word; color: #38bdf8; }
+                p, li, div { font-size: 1em; color: var(--text-main); word-wrap: break-word; box-sizing: border-box; }
+                strong { color: #38bdf8; text-shadow: 0 0 6px rgba(56, 189, 248, 0.3); }
+                code {
                     background: #0f172a;
                     color: #38bdf8;
                     padding: 4px 8px;
@@ -231,8 +231,8 @@ class HyperPersonalizedLDBot:
                     word-break: break-all;
                     overflow-wrap: anywhere;
                     border: 1px solid #1e293b;
-                }}
-                pre {{
+                }
+                pre {
                     background: #020617;
                     color: #38bdf8;
                     padding: 22px;
@@ -244,9 +244,9 @@ class HyperPersonalizedLDBot:
                     box-shadow: inset 0 2px 10px rgba(0,0,0,0.6);
                     white-space: pre-wrap;
                     word-wrap: break-word;
-                }}
-                pre code {{ background: transparent; color: inherit; padding: 0; font-size: 1em; }}
-                .badge {{
+                }
+                pre code { background: transparent; color: inherit; padding: 0; font-size: 1em; }
+                .badge {
                     background: rgba(14, 165, 233, 0.1);
                     color: #38bdf8;
                     padding: 8px 18px;
@@ -258,8 +258,8 @@ class HyperPersonalizedLDBot:
                     letter-spacing: 0.05em;
                     text-transform: uppercase;
                     box-shadow: 0 0 15px rgba(14, 165, 233, 0.2);
-                }}
-                .interactive-box {{
+                }
+                .interactive-box {
                     background: rgba(3, 7, 18, 0.65);
                     border: 1px solid #1e293b;
                     border-radius: 16px;
@@ -268,8 +268,8 @@ class HyperPersonalizedLDBot:
                     box-sizing: border-box;
                     width: 100%;
                     box-shadow: 0 0 20px rgba(14, 165, 233, 0.05);
-                }}
-                .action-btn {{
+                }
+                .action-btn {
                     background: linear-gradient(135deg, #0369a1, #0284c7, #0ea5e9);
                     color: #fff;
                     border: 1px solid #38bdf8;
@@ -282,15 +282,15 @@ class HyperPersonalizedLDBot:
                     text-transform: uppercase;
                     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                     box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3);
-                }}
-                .action-btn:hover {{
+                }
+                .action-btn:hover {
                     transform: translateY(-3px) scale(1.02);
                     box-shadow: 0 0 25px rgba(56, 189, 248, 0.6);
                     background: linear-gradient(135deg, #0284c7, #0ea5e9, #38bdf8);
                     border-color: #fff;
-                }}
-                .media-section {{ margin-top: 45px; padding-top: 25px; border-top: 2px solid #0ea5e9; width: 100%; box-sizing: border-box; }}
-                .media-card {{
+                }
+                .media-section { margin-top: 45px; padding-top: 25px; border-top: 2px solid #0ea5e9; width: 100%; box-sizing: border-box; }
+                .media-card {
                     background: rgba(3, 7, 18, 0.5);
                     border: 1px solid #1e293b;
                     border-radius: 18px;
@@ -300,27 +300,27 @@ class HyperPersonalizedLDBot:
                     width: 100%;
                     transition: all 0.3s ease;
                     box-shadow: inset 0 0 10px rgba(255,255,255,0.02);
-                }}
-                .media-card:hover {{
+                }
+                .media-card:hover {
                     border-color: var(--accent-color);
                     box-shadow: 0 0 25px rgba(14, 165, 233, 0.2), inset 0 0 15px rgba(14, 165, 233, 0.1);
                     transform: translateX(4px);
-                }}
-                .premium-playlist {{
+                }
+                .premium-playlist {
                     background: rgba(16, 185, 129, 0.03);
                     border-color: rgba(16, 185, 129, 0.3);
-                }}
-                .premium-playlist:hover {{
+                }
+                .premium-playlist:hover {
                     border-color: var(--accent-premium);
                     box-shadow: 0 0 25px rgba(16, 185, 129, 0.2), inset 0 0 15px rgba(16, 185, 129, 0.1);
-                }}
-                .premium-playlist h4 {{ color: #34d399; text-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }}
-                .media-meta {{ font-size: 0.9em; color: var(--text-muted); margin: 6px 0 16px 0; }}
-                .media-link a {{ color: var(--primary-glow); font-weight: 700; text-decoration: none; word-break: break-all; letter-spacing: 0.02em; }}
-                .media-link a:hover {{ text-decoration: underline; text-shadow: 0 0 8px rgba(56, 189, 248, 0.5); }}
-                .iframe-container {{ position: relative; width: 100%; padding-bottom: 56.25%; height: 0; margin-top: 12px; overflow: hidden; }}
-                .iframe-container iframe {{ position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 12px; border: 0; box-shadow: 0 0 15px rgba(0,0,0,0.5); }}
-                textarea {{
+                }
+                .premium-playlist h4 { color: #34d399; text-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
+                .media-meta { font-size: 0.9em; color: var(--text-muted); margin: 6px 0 16px 0; }
+                .media-link a { color: var(--primary-glow); font-weight: 700; text-decoration: none; word-break: break-all; letter-spacing: 0.02em; }
+                .media-link a:hover { text-decoration: underline; text-shadow: 0 0 8px rgba(56, 189, 248, 0.5); }
+                .iframe-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; margin-top: 12px; overflow: hidden; }
+                .iframe-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 12px; border: 0; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
+                textarea {
                     background: #020617;
                     color: var(--text-main);
                     border: 1px solid #1e293b;
@@ -328,28 +328,51 @@ class HyperPersonalizedLDBot:
                     padding: 16px;
                     font-family: 'Fira Code', monospace;
                     font-size: 0.95em;
-                }}
-                textarea:focus {{ outline: none; border-color: var(--accent-color); box-shadow: 0 0 15px rgba(14, 165, 233, 0.3); }}
-                @media (min-width: 768px) {{
-                    body {{ padding: 0 40px; margin: 50px auto; max-width: 1100px; }}
-                    .container {{ padding: 48px; }}
-                    h1 {{ font-size: 2.6em; }}
-                    h2 {{ font-size: 1.65em; }}
-                    pre {{ font-size: 0.85em; padding: 28px; }}
-                }}
-                @media print {{
-                    body {{ background: #fff; color: #000; margin: 0; padding: 0; }}
-                    .container {{ box-shadow: none; padding: 0; border: none; background: none; }}
-                    .media-section, .interactive-box, button, .badge, .media-card {{ display: none !important; }}
-                }}
+                }
+                textarea:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 15px rgba(14, 165, 233, 0.3); }
+                @media (min-width: 768px) {
+                    body { padding: 0 40px; margin: 50px auto; max-width: 1100px; }
+                    .container { padding: 48px; }
+                    h1 { font-size: 2.6em; }
+                    h2 { font-size: 1.65em; }
+                    pre { font-size: 0.85em; padding: 28px; }
+                }
+                @media print {
+                    body { background: #fff; color: #000; margin: 0; padding: 0; }
+                    .container { box-shadow: none; padding: 0; border: none; background: none; }
+                    .media-section, .interactive-box, button, .badge, .media-card { display: none !important; }
+                }
             </style>
             <script>
-                function checkFeedback() {{ alert("🎓 Elite Custom AI Workspace: Response successfully validated!"); }}
-                function triggerPrint() {{ window.print(); }}
+                function checkFeedback() { alert("🎓 Elite Custom AI Workspace: Response successfully validated!"); }
+                function triggerPrint() { window.print(); }
             </script>
         </head>
         <body>
             <div class="container">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                     <span class="badge">🛡️ ELITE ENTERPRISE AI L&D ACTIVE</span>
-                    <button class="action-btn" onclick="triggerPrint
+                    <button class="action-btn" onclick="triggerPrint()">🖨️ Export as PDF</button>
+                </div>
+                <br><br>
+                <div class="text-course-content">
+                    USER_MARKDOWN_CONTENT_REPLACE
+                </div>
+                <div class="interactive-box">
+                    <h3>🎯 Live Skill Execution Sandbox</h3>
+                    <p>Paste your architectural solutions to benchmark compliance:</p>
+                    <textarea style="width:100%; height:110px; box-sizing:border-box;" placeholder="Insert technical deployment steps here..."></textarea><br><br>
+                    <button class="action-btn" onclick="checkFeedback()">Evaluate Architecture</button>
+                </div>
+                <div class="media-section">
+                    <h2>📺 Premium Masterclass Series & Architecture Tracks</h2>
+                    USER_PLAYLIST_REPLACE
+                    <h2 style="margin-top:45px;">🎬 Sequenced Core Engineering Laboratories</h2>
+                    USER_VIDEO_REPLACE
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+
+        # Safely assemble output strings p
