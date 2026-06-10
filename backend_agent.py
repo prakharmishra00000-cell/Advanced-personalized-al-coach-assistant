@@ -28,8 +28,8 @@ class HyperPersonalizedLDBot:
                     search_context = "\n".join([f"Source Data: {r.get('body', '')[:200]}" for r in text_results])
                 
                 # 2. Query DuckDuckGo Video API for actual specific videos
-                video_ DDGS_results = list(ddg.videos(keywords=f"{query} youtube", max_results=3))
-                for v in video_DDGS_results:
+                video_ddgs_results = list(ddg.videos(keywords=f"{query} youtube", max_results=3))
+                for v in video_ddgs_results:
                     link = v.get("content", v.get("url", ""))
                     # Validate and extract real YouTube watch links
                     if "youtube.com/watch?v=" in link or "youtu.be/" in link:
@@ -105,7 +105,7 @@ class HyperPersonalizedLDBot:
             "3. 🧠 ADAPTIVE STRUCTURAL COMPLEXITY SCALE: Map explicit operational strategies for fundamentals, production integrations, and advanced architecture optimizations.\n"
             "4. 🎯 AGGRESSIVE EVALUATION CRITIQUE LAB: Design comprehensive execution assignments along with fully engineered ideal answer breakdowns.\n\n"
             f"Ground your intelligence natively inside this real-time web documentation matrix:\n{search_data}"
-        ).format(difficulty)
+        )
 
         try:
             response = self.client.chat.completions.create(
@@ -163,7 +163,7 @@ class HyperPersonalizedLDBot:
                 p, li, div {{ font-size: 0.95em; word-wrap: break-word; box-sizing: border-box; }}
                 code {{ background: #f1f5f9; padding: 2px 5px; border-radius: 4px; font-family: monospace; font-size: 0.8em; color: #0f172a; word-break: break-all; word-wrap: break-word; overflow-wrap: anywhere; }}
                 pre {{ background: #0f172a; color: #f8fafc; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.75em; box-sizing: border-box; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); white-space: pre-wrap; word-wrap: break-word; word-break: break-word; }}
-                pre code {{ background: transparent; color: inherit; padding: 0; font-size: 1em; word-break: break-word; }}
+                pre code {{ background: transparent; color: inherit; padding: 0; font-size: 1e-1; word-break: break-word; }}
                 .badge {{ background: #f0fdf4; color: #16a34a; padding: 5px 10px; border-radius: 20px; font-size: 0.65em; font-weight: bold; border: 1px solid #bbf7d0; display: inline-block; }}
                 .interactive-box {{ background: #fafafa; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; margin-top: 15px; box-sizing: border-box; width: 100%; }}
                 .action-btn {{ background: #2563eb; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.75em; }}
