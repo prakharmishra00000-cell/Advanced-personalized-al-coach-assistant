@@ -7,7 +7,6 @@ class HyperPersonalizedLDBot:
     def __init__(self):
         self.api_key = os.getenv("GROQ_API_KEY")
         if self.api_key:
-            # Groq uses OpenAI compatible endpoint
             self.client = OpenAI(
                 api_key=self.api_key,
                 base_url="https://api.groq.com/openai/v1"
@@ -86,7 +85,7 @@ class HyperPersonalizedLDBot:
         )
 
         try:
-            # We use Groq's blindingly fast llama3.1-8b model, which has extremely high rate limits
+            # FIXED: Reduced max_tokens from 8000 to 2500 to stay under Groq's 6000 TPM free-tier limit
             response = self.client.chat.completions.create(
                 model="llama-3.1-8b-instant",
                 messages=[
@@ -94,7 +93,7 @@ class HyperPersonalizedLDBot:
                     {"role": "user", "content": f"Generate my advanced custom L&D training program for: {user_prompt}"}
                 ],
                 temperature=0.4,
-                max_tokens=8000
+                max_tokens=2500
             )
             markdown_output = response.choices[0].message.content
         except Exception as e:
