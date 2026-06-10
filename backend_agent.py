@@ -25,7 +25,8 @@ class HyperPersonalizedLDBot:
                 if text_results:
                     search_context = "\n".join([f"Source Data: {r.get('body', '')[:200]}" for r in text_results])
                 
-                video_results = list(ddg.videos(keywords=f"{query} youtube course", max_results=3))
+                # Direct YouTube video search
+                video_results = list(ddg.videos(keywords=f"{query} youtube video course", max_results=3))
                 for v in video_results[:3]:
                     link = v.get("content", v.get("url", "#"))
                     embed_link = link
@@ -40,11 +41,12 @@ class HyperPersonalizedLDBot:
                         "title": v.get("title", "Advanced Technical Training Lab Walkthrough"),
                         "url": link,
                         "embed": embed_link,
-                        "channel": v.get("publisher", "Enterprise Cloud Host"),
+                        "channel": v.get("publisher", "YouTube Creator Network"),
                         "duration": v.get("duration", "N/A")
                     })
 
-                playlist_results = list(ddg.videos(keywords=f"{query} playlist youtube", max_results=2))
+                # Direct YouTube playlist search
+                playlist_results = list(ddg.videos(keywords=f"{query} youtube playlist", max_results=2))
                 for p in playlist_results[:2]:
                     link = p.get("content", p.get("url", "#"))
                     embed_link = link
@@ -59,7 +61,7 @@ class HyperPersonalizedLDBot:
                         "title": p.get("title", "Complete Comprehensive Learning Track / Playlist Series"),
                         "url": link,
                         "embed": embed_link,
-                        "channel": p.get("publisher", "Technical Curriculum Network")
+                        "channel": p.get("publisher", "YouTube Curriculum Channel")
                     })
         except Exception as e:
             print(f"⚠️ Embedded scraper log notice: {str(e)}")
@@ -114,7 +116,7 @@ class HyperPersonalizedLDBot:
         playlist_elements_html = ""
         for p in playlist_list:
             playlist_elements_html += f"""
-            <div class="playlist-card" style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; padding:20px; margin-bottom:25px;">
+            <div class="playlist-card">
                 <h4 style="color:#16a34a; margin-top:0;">📂 COMPLETE TIMELINE TRACK: {p['title']}</h4>
                 <p style="font-size:0.9em; color:#475569; margin:2px 0;"><strong>Curriculum Host:</strong> {p['channel']}</p>
                 <div class="iframe-container">
@@ -131,28 +133,31 @@ class HyperPersonalizedLDBot:
             <title>Advanced Custom AI Coach L&D Workspace</title>
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
-                body {{ font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6; color: #1e293b; max-width: 950px; margin: 20px auto; padding: 0 10px; background-color: #f8fafc; box-sizing: border-box; }}
-                .container {{ background: #ffffff; padding: 20px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); width: 100%; box-sizing: border-box; }}
-                h1 {{ color: #1e3a8a; border-bottom: 3px solid #3b82f6; padding-bottom: 12px; font-size: 1.8em; word-wrap: break-word; }}
-                h2 {{ color: #2563eb; margin-top: 35px; border-left: 5px solid #2563eb; padding-left: 12px; font-size: 1.4em; }}
+                body {{ font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6; color: #1e293b; max-width: 950px; margin: 10px auto; padding: 0 8px; background-color: #f8fafc; box-sizing: border-box; }}
+                .container {{ background: #ffffff; padding: 16px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); width: 100%; box-sizing: border-box; }}
+                h1 {{ color: #1e3a8a; border-bottom: 3px solid #3b82f6; padding-bottom: 12px; font-size: 1.6em; word-wrap: break-word; }}
+                h2 {{ color: #2563eb; margin-top: 30px; border-left: 5px solid #2563eb; padding-left: 10px; font-size: 1.3em; }}
                 h3 {{ font-size: 1.1em; }}
-                code {{ background: #f1f5f9; padding: 3px 7px; border-radius: 4px; font-family: monospace; font-size: 0.9em; color: #0f172a; word-break: break-all; }}
-                pre {{ background: #0f172a; color: #f8fafc; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 0.85em; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); white-space: pre-wrap; word-wrap: break-word; }}
-                .badge {{ background: #f0fdf4; color: #16a34a; padding: 6px 14px; border-radius: 20px; font-size: 0.75em; font-weight: bold; border: 1px solid #bbf7d0; display: inline-block; text-align: center; }}
-                .interactive-box {{ background: #fafafa; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin-top: 20px; box-sizing: border-box; }}
-                .action-btn {{ background: #2563eb; color: #fff; border: none; padding: 10px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 8px; font-size: 0.85em; }}
-                .share-btn {{ background: #16a34a; color: #fff; border: none; padding: 10px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85em; }}
-                .video-section {{ margin-top: 30px; padding-top: 20px; border-top: 3px solid #cbd5e1; }}
-                .video-card, .playlist-card {{ background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 20px; box-sizing: border-box; }}
-                .iframe-container {{ position: relative; width: 100%; padding-bottom: 56.25%; height: 0; margin-top: 14px; overflow: hidden; }}
+                code {{ background: #f1f5f9; padding: 2px 5px; border-radius: 4px; font-family: monospace; font-size: 0.85em; color: #0f172a; word-break: break-all; }}
+                pre {{ background: #0f172a; color: #f8fafc; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.8em; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); white-space: pre-wrap; word-wrap: break-word; }}
+                .badge {{ background: #f0fdf4; color: #16a34a; padding: 5px 10px; border-radius: 20px; font-size: 0.7em; font-weight: bold; border: 1px solid #bbf7d0; display: inline-block; }}
+                .interactive-box {{ background: #fafafa; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; margin-top: 15px; box-sizing: border-box; }}
+                .action-btn {{ background: #2563eb; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8em; }}
+                .video-section {{ margin-top: 25px; padding-top: 15px; border-top: 3px solid #cbd5e1; }}
+                .video-card {{ background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-bottom: 15px; box-sizing: border-box; }}
+                .playlist-card {{ background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 12px; margin-bottom: 15px; box-sizing: border-box; }}
+                .iframe-container {{ position: relative; width: 100%; padding-bottom: 56.25%; height: 0; margin-top: 10px; overflow: hidden; }}
                 .iframe-container iframe {{ position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px; border: 0; }}
                 .text-course-content {{ overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; }}
                 @media (min-width: 768px) {{
                     body {{ padding: 0 20px; margin: 40px auto; }}
                     .container {{ padding: 40px; }}
                     h1 {{ font-size: 2.2em; }}
-                    .action-btn, .share-btn {{ font-size: 0.9em; padding: 10px 18px; margin-bottom: 0; }}
-                    .badge {{ font-size: 0.85em; }}
+                    h2 {{ font-size: 1.4em; padding-left: 12px; }}
+                    code {{ font-size: 0.95em; }}
+                    pre {{ font-size: 0.9em; padding: 20px; }}
+                    .action-btn {{ font-size: 0.9em; padding: 10px 18px; }}
+                    .badge {{ font-size: 0.85em; padding: 6px 14px; }}
                     .video-card, .playlist-card {{ padding: 24px; }}
                     .interactive-box {{ padding: 20px; }}
                 }}
@@ -165,30 +170,13 @@ class HyperPersonalizedLDBot:
             <script>
                 function checkFeedback() {{ alert("🎓 Custom AI Coach Log: Evaluation parameters match tracking limits perfectly!"); }}
                 function triggerPrint() {{ window.print(); }}
-                async function shareWorkspace() {{
-                    if (navigator.share) {{
-                        try {{
-                            await navigator.share({{
-                                title: 'Custom AI Training Program',
-                                text: 'Check out this personalized micro-course compiled by my Advanced AI L&D Coach!',
-                                url: window.location.href
-                            }});
-                        }} catch (e) {{ }}
-                    }} else {{
-                        navigator.clipboard.writeText(window.location.href);
-                        alert("📋 Workspace link successfully copied to clipboard!");
-                    }}
-                }}
             </script>
         </head>
         <body>
             <div class="container">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <span class="badge">🛡️ Enterprise AI Coach L&D Asset Stack Active</span>
-                    <div style="display:flex; gap: 8px;">
-                        <button class="action-btn" onclick="triggerPrint()">🖨️ Export</button>
-                        <button class="share-btn" onclick="shareWorkspace()">🔗 Share</button>
-                    </div>
+                    <button class="action-btn" onclick="triggerPrint()">🖨️ Export as PDF</button>
                 </div>
                 <div class="text-course-content">
                     {markdown_output.replace('# ', '<h1>').replace('## ', '<h2>').replace('### ', '###').replace('\n', '<br>')}
@@ -196,13 +184,13 @@ class HyperPersonalizedLDBot:
                 <div class="interactive-box">
                     <h3>🎯 Live Skill Execution Sandbox</h3>
                     <p>Paste your solutions to evaluate compliance against tracking metrics:</p>
-                    <textarea style="width:100%; height:100px; border-radius:6px; border:1px solid #cbd5e1; padding:10px; font-family:monospace; box-sizing:border-box;" placeholder="Write response steps here..."></textarea><br><br>
+                    <textarea style="width:100%; height:80px; border-radius:6px; border:1px solid #cbd5e1; padding:10px; font-family:monospace; box-sizing:border-box;" placeholder="Write response steps here..."></textarea><br><br>
                     <button class="action-btn" onclick="checkFeedback()">Submit Solution</button>
                 </div>
                 <div class="video-section">
                     <h2>📺 Comprehensive Learning Playlists & Deep-Dive tracks</h2>
                     {playlist_elements_html if playlist_elements_html else "<p>Aggregating long-form curriculum pathways...</p>"}
-                    <h2 style="margin-top:40px;">🎬 Sequenced Core Laboratories & Walkthroughs</h2>
+                    <h2 style="margin-top:30px;">🎬 Sequenced Core Laboratories & Walkthroughs</h2>
                     {video_elements_html if video_elements_html else "<p>No active matches located in public streaming registers.</p>"}
                 </div>
             </div>
