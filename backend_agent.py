@@ -21,11 +21,13 @@ class HyperPersonalizedLDBot:
         
         try:
             with DDGS() as ddg:
-                text_results = list(ddg.text(keywords=f"{query} infrastructure documentation standard guidelines", max_results=3))
+                # Broadened search query for better context
+                text_results = list(ddg.text(keywords=f"{query} tutorial guide", max_results=3))
                 if text_results:
                     search_context = "\n".join([f"Source Data: {r.get('body', '')[:200]}" for r in text_results])
                 
-                video_results = list(ddg.videos(keywords=f"{query} technical masterclass training lab", max_results=3))
+                # Explicitly search for YouTube video courses
+                video_results = list(ddg.videos(keywords=f"{query} youtube course", max_results=3))
                 for v in video_results[:3]:
                     link = v.get("content", v.get("url", "#"))
                     embed_link = link
@@ -44,7 +46,8 @@ class HyperPersonalizedLDBot:
                         "duration": v.get("duration", "N/A")
                     })
 
-                playlist_results = list(ddg.videos(keywords=f"{query} full training course series playlist", max_results=2))
+                # Explicitly search for YouTube playlists/tracks
+                playlist_results = list(ddg.videos(keywords=f"{query} playlist youtube", max_results=2))
                 for p in playlist_results[:2]:
                     link = p.get("content", p.get("url", "#"))
                     embed_link = link
@@ -85,7 +88,6 @@ class HyperPersonalizedLDBot:
         )
 
         try:
-            # FIXED: Reduced max_tokens from 8000 to 2500 to stay under Groq's 6000 TPM free-tier limit
             response = self.client.chat.completions.create(
                 model="llama-3.1-8b-instant",
                 messages=[
