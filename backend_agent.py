@@ -190,7 +190,7 @@ class HyperPersonalizedLDBot:
                                             text: 'Check out this personalized micro-course compiled by my Advanced AI L&D Coach!',
                                             url: window.location.href
                                         }});
-                                    } catch (err) {{
+                                    }} catch (err) {{
                                         console.log('Sharing execution dismissed');
                                     }}
                                 }} else {{
