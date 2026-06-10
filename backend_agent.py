@@ -25,10 +25,14 @@ class HyperPersonalizedLDBot:
                 if text_results:
                     search_context = "\n".join([f"Source Data: {r.get('body', '')[:200]}" for r in text_results])
                 
-                # Direct YouTube video search
-                video_results = list(ddg.videos(keywords=f"{query} youtube video course", max_results=3))
+                # Force strictly targeted YouTube searches
+                video_results = list(ddg.videos(keywords=f"{query} full video site:youtube.com", max_results=3))
                 for v in video_results[:3]:
                     link = v.get("content", v.get("url", "#"))
+                    if "youtube.com" not in link and "youtu.be" not in link:
+                        # Fallback to duckduckgo URL if content is missing direct domain
+                        link = v.get("url", f"https://www.youtube.com/results?search_query={query}")
+                    
                     embed_link = link
                     if "youtube.com/watch?v=" in link:
                         video_id = link.split("v=")[1].split("&")[0]
@@ -45,10 +49,13 @@ class HyperPersonalizedLDBot:
                         "duration": v.get("duration", "N/A")
                     })
 
-                # Direct YouTube playlist search
-                playlist_results = list(ddg.videos(keywords=f"{query} youtube playlist", max_results=2))
+                # Force strictly targeted YouTube playlist searches
+                playlist_results = list(ddg.videos(keywords=f"{query} playlist site:youtube.com", max_results=2))
                 for p in playlist_results[:2]:
                     link = p.get("content", p.get("url", "#"))
+                    if "youtube.com" not in link and "youtu.be" not in link:
+                        link = p.get("url", f"https://www.youtube.com/results?search_query={query}+playlist")
+
                     embed_link = link
                     if "list=" in link:
                         playlist_id = link.split("list=")[1].split("&")[0]
@@ -68,20 +75,20 @@ class HyperPersonalizedLDBot:
             
         return search_context, compiled_videos, compiled_playlists
 
-    def execute_unlimited_generation(self, user_prompt: str) -> Tuple[str, str, List[Dict[str, str]], List[Dict[str, str]]]:
+    def execute_unlimited_generation(self, user_prompt: str, difficulty: str = "Production-Ready") -> Tuple[str, str, List[Dict[str, str]], List[Dict[str, str]]]:
         if not self.client:
             return "⚠️ Setup Error: Configure your GROQ_API_KEY environment variable inside Render.", "", [], []
 
         search_data, video_list, playlist_list = self.execute_embedded_search(user_prompt)
 
         system_instruction = (
-            "You are an Elite Enterprise Hyper-Personalized AI L&D Director. Your mission is to output "
-            "a highly precise, exhaustively detailed training curriculum for the user's specific prompt. "
+            f"You are an Elite Enterprise Hyper-Personalized AI L&D Director operating at an '{difficulty}' complexity tier. "
+            "Your mission is to output a highly precise, exhaustively detailed training curriculum for the user's specific prompt. "
             "Do NOT speak about external platforms, courses, or resources. Generate all content directly.\n\n"
             "You MUST divide your extensive output using clean Markdown syntax into these 4 main modules:\n"
             "1. 📊 SYSTEMIC SKILL GAP DIAGNOSTIC: Build real-world scenarios and interactive check-questions to benchmark capabilities.\n"
             "2. 📖 CORE INTELLECTUAL TEXTBOOK MODULES: Author massive, production-grade technical articles, foundational frameworks, and clean code block scripts.\n"
-            "3. 🧠 ADAPTIVE STRUCTURAL COMPLEXITY SCALE: Map explicit operational strategies for [EASY Track: Fundamentals], [MEDIUM Track: Production Integrations], and [HARD Track: Advanced Architecture Optimization].\n"
+            "3. 🧠 ADAPTIVE STRUCTURAL COMPLEXITY SCALE: Map explicit operational strategies for fundamentals, production integrations, and advanced architecture optimizations.\n"
             "4. 🎯 AGGRESSIVE EVALUATION CRITIQUE LAB: Design comprehensive execution assignments along with fully engineered ideal answer breakdowns.\n\n"
             f"Ground your intelligence natively inside this real-time web documentation matrix:\n{search_data}"
         )
@@ -109,7 +116,7 @@ class HyperPersonalizedLDBot:
                 <div class="iframe-container">
                     <iframe src="{v['embed']}" frameborder="0" allowfullscreen></iframe>
                 </div>
-                <p style="font-size:0.85em; margin-top:8px;"><a href="{v['url']}" target="_blank">🔗 Open Original Video Lab Source</a></p>
+                <p style="font-size:0.85em; margin-top:8px; word-break:break-all;"><a href="{v['url']}" target="_blank">🔗 Direct Link to Access Video</a></p>
             </div>
             """
 
@@ -122,7 +129,7 @@ class HyperPersonalizedLDBot:
                 <div class="iframe-container">
                     <iframe src="{p['embed']}" frameborder="0" allowfullscreen></iframe>
                 </div>
-                <p style="font-size:0.85em; margin-top:8px;"><a href="{p['url']}" style="color:#16a34a; font-weight:bold; word-break:break-all;" target="_blank">🔗 Access Full Playlist Series Library</a></p>
+                <p style="font-size:0.85em; margin-top:8px;"><a href="{p['url']}" style="color:#16a34a; font-weight:bold; word-break:break-all;" target="_blank">🔗 Direct Link to Access Playlist</a></p>
             </div>
             """
 
@@ -131,39 +138,43 @@ class HyperPersonalizedLDBot:
         <html>
         <head>
             <title>Advanced Custom AI Coach L&D Workspace</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
             <style>
-                body {{ font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6; color: #1e293b; max-width: 950px; margin: 10px auto; padding: 0 8px; background-color: #f8fafc; box-sizing: border-box; }}
-                .container {{ background: #ffffff; padding: 16px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); width: 100%; box-sizing: border-box; }}
-                h1 {{ color: #1e3a8a; border-bottom: 3px solid #3b82f6; padding-bottom: 12px; font-size: 1.6em; word-wrap: break-word; }}
-                h2 {{ color: #2563eb; margin-top: 30px; border-left: 5px solid #2563eb; padding-left: 10px; font-size: 1.3em; }}
-                h3 {{ font-size: 1.1em; }}
-                code {{ background: #f1f5f9; padding: 2px 5px; border-radius: 4px; font-family: monospace; font-size: 0.85em; color: #0f172a; word-break: break-all; }}
-                pre {{ background: #0f172a; color: #f8fafc; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.8em; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); white-space: pre-wrap; word-wrap: break-word; }}
-                .badge {{ background: #f0fdf4; color: #16a34a; padding: 5px 10px; border-radius: 20px; font-size: 0.7em; font-weight: bold; border: 1px solid #bbf7d0; display: inline-block; }}
-                .interactive-box {{ background: #fafafa; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; margin-top: 15px; box-sizing: border-box; }}
-                .action-btn {{ background: #2563eb; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8em; }}
-                .video-section {{ margin-top: 25px; padding-top: 15px; border-top: 3px solid #cbd5e1; }}
-                .video-card {{ background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-bottom: 15px; box-sizing: border-box; }}
-                .playlist-card {{ background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 12px; margin-bottom: 15px; box-sizing: border-box; }}
+                html {{ overflow-x: hidden; width: 100%; }}
+                body {{ font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6; color: #1e293b; width: 100%; max-width: 100vw; margin: 0 auto; padding: 10px 8px; background-color: #f8fafc; box-sizing: border-box; overflow-x: hidden; }}
+                .container {{ background: #ffffff; padding: 16px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); width: 100%; box-sizing: border-box; overflow-wrap: anywhere; }}
+                h1 {{ color: #1e3a8a; border-bottom: 3px solid #3b82f6; padding-bottom: 12px; font-size: 1.5em; word-wrap: break-word; word-break: break-word; }}
+                h2 {{ color: #2563eb; margin-top: 30px; border-left: 5px solid #2563eb; padding-left: 10px; font-size: 1.2em; word-wrap: break-word; }}
+                h3 {{ font-size: 1.05em; word-wrap: break-word; }}
+                p, li, div {{ font-size: 0.95em; word-wrap: break-word; box-sizing: border-box; }}
+                code {{ background: #f1f5f9; padding: 2px 5px; border-radius: 4px; font-family: monospace; font-size: 0.8em; color: #0f172a; word-break: break-all; word-wrap: break-word; overflow-wrap: anywhere; }}
+                pre {{ background: #0f172a; color: #f8fafc; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.75em; box-sizing: border-box; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); white-space: pre-wrap; word-wrap: break-word; word-break: break-word; }}
+                pre code {{ background: transparent; color: inherit; padding: 0; font-size: 1em; word-break: break-word; }}
+                .badge {{ background: #f0fdf4; color: #16a34a; padding: 5px 10px; border-radius: 20px; font-size: 0.65em; font-weight: bold; border: 1px solid #bbf7d0; display: inline-block; }}
+                .interactive-box {{ background: #fafafa; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; margin-top: 15px; box-sizing: border-box; width: 100%; }}
+                .action-btn {{ background: #2563eb; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.75em; }}
+                .video-section {{ margin-top: 25px; padding-top: 15px; border-top: 3px solid #cbd5e1; width: 100%; box-sizing: border-box; }}
+                .video-card {{ background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-bottom: 15px; box-sizing: border-box; width: 100%; }}
+                .playlist-card {{ background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 12px; margin-bottom: 15px; box-sizing: border-box; width: 100%; }}
                 .iframe-container {{ position: relative; width: 100%; padding-bottom: 56.25%; height: 0; margin-top: 10px; overflow: hidden; }}
                 .iframe-container iframe {{ position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px; border: 0; }}
-                .text-course-content {{ overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; }}
+                .text-course-content {{ width: 100%; overflow-wrap: anywhere; word-wrap: break-word; box-sizing: border-box; }}
                 @media (min-width: 768px) {{
-                    body {{ padding: 0 20px; margin: 40px auto; }}
+                    body {{ padding: 0 20px; margin: 40px auto; max-width: 950px; font-size: 100%; }}
                     .container {{ padding: 40px; }}
-                    h1 {{ font-size: 2.2em; }}
-                    h2 {{ font-size: 1.4em; padding-left: 12px; }}
-                    code {{ font-size: 0.95em; }}
-                    pre {{ font-size: 0.9em; padding: 20px; }}
-                    .action-btn {{ font-size: 0.9em; padding: 10px 18px; }}
-                    .badge {{ font-size: 0.85em; padding: 6px 14px; }}
-                    .video-card, .playlist-card {{ padding: 24px; }}
+                    h1 {{ font-size: 2em; }}
+                    h2 {{ font-size: 1.35em; padding-left: 12px; }}
+                    p, li, div {{ font-size: 1em; }}
+                    code {{ font-size: 0.9em; }}
+                    pre {{ font-size: 0.85em; padding: 20px; }}
+                    .action-btn {{ font-size: 0.85em; padding: 10px 16px; }}
+                    .badge {{ font-size: 0.8em; padding: 6px 14px; }}
+                    .video-card, .playlist-card {{ padding: 20px; }}
                     .interactive-box {{ padding: 20px; }}
                 }}
                 @media print {{
-                    body {{ background: #fff; color: #000; margin: 0; padding: 0; }}
-                    .container {{ box-shadow: none; padding: 0; margin: 0; }}
+                    body {{ background: #fff; color: #000; margin: 0; padding: 0; width: auto; max-width: none; }}
+                    .container {{ box-shadow: none; padding: 0; margin: 0; width: auto; }}
                     .video-section, .interactive-box, button, .badge, .playlist-card {{ display: none !important; }}
                 }}
             </style>
@@ -198,3 +209,21 @@ class HyperPersonalizedLDBot:
         </html>
         """
         return markdown_output, html_output, video_list, playlist_list
+
+    def generate_quiz(self, topic: str) -> str:
+        """Generates an interactive 5-question multiple choice quiz using Groq."""
+        if not self.client:
+            return "Client uninitialized."
+        
+        prompt = f"Generate an intensive, 5-question multiple choice technical quiz with answers on the topic: {topic}. Format it clearly in Markdown."
+        
+        try:
+            response = self.client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                max_tokens=1500
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            return f"Error generating quiz: {str(e)}"
