@@ -10,7 +10,6 @@ class HyperPersonalizedLDBot:
         self.hf_tokens: List[str] = [os.getenv(f"HF_API_TOKEN_{i}") for i in range(1, 9) if os.getenv(f"HF_API_TOKEN_{i}")]
         self.active_hf_idx = 0
         
-        # Failover pool of highly capable, free Hugging Face inference models
         self.model_pool = [
             "https://api-inference.huggingface.co/models/meta-llama/Llama-3.3-70B-Instruct",
             "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-72B-Instruct",
@@ -91,12 +90,12 @@ class HyperPersonalizedLDBot:
             f"Ground your intelligence natively inside this real-time web documentation matrix:\n{search_data}"
         )
 
+        # UPDATED: Reduced max_new_tokens from 3000 to 1500 to prevent free-server timeouts
         payload = {
             "inputs": f"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n{super_advanced_system_prompt}<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nGenerate my advanced custom L&D training program for: {user_prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
-            "parameters": {"max_new_tokens": 3000, "temperature": 0.4, "return_full_text": False}
+            "parameters": {"max_new_tokens": 1500, "temperature": 0.4, "return_full_text": False}
         }
 
-        # Exhaustive loop: tries every token on Model 1, then Model 2, then Model 3
         for target_api_url in self.model_pool:
             attempts = 0
             max_attempts = len(self.hf_tokens)
