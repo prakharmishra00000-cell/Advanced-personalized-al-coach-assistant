@@ -1,4 +1,5 @@
 import os
+import re
 from typing import List, Dict, Any, Tuple
 from duckduckgo_search import DDGS
 from openai import OpenAI
@@ -15,61 +16,67 @@ class HyperPersonalizedLDBot:
             self.client = None
 
     def execute_embedded_search(self, query: str) -> Tuple[str, List[Dict[str, str]], List[Dict[str, str]]]:
-        search_context = "Baseline operational target matrix."
+        search_context = "Baseline operational target operational matrix."
         compiled_videos = []
         compiled_playlists = []
         
         try:
             with DDGS() as ddg:
-                text_results = list(ddg.text(keywords=f"{query} tutorial guide", max_results=3))
+                # 1. Broaden text search for context and reliable URL extraction
+                text_results = list(ddg.text(keywords=f"{query} tutorial course youtube", max_results=5))
+                scraped_youtube_links = []
+                
                 if text_results:
                     search_context = "\n".join([f"Source Data: {r.get('body', '')[:200]}" for r in text_results])
-                
-                # Force strictly targeted YouTube searches
-                video_results = list(ddg.videos(keywords=f"{query} full video site:youtube.com", max_results=3))
-                for v in video_results[:3]:
-                    link = v.get("content", v.get("url", "#"))
-                    if "youtube.com" not in link and "youtu.be" not in link:
-                        # Fallback to duckduckgo URL if content is missing direct domain
-                        link = v.get("url", f"https://www.youtube.com/results?search_query={query}")
                     
-                    embed_link = link
-                    if "youtube.com/watch?v=" in link:
-                        video_id = link.split("v=")[1].split("&")[0]
-                        embed_link = f"https://www.youtube.com/embed/{video_id}"
-                    elif "youtu.be/" in link:
-                        video_id = link.split("youtu.be/")[1].split("?")[0]
-                        embed_link = f"https://www.youtube.com/embed/{video_id}"
+                    # Extract any youtube links found in the text result bodies/hrefs
+                    for r in text_results:
+                        all_text = (r.get('body', '') + " " + r.get('href', '')).lower()
+                        found_urls = re.findall(r'(https?://(?:www\.)?(?:youtube\.com|youtu\.be)/\S+)', all_text)
+                        for url in found_urls:
+                            clean_url = url.strip(').,;')
+                            if clean_url not in scraped_youtube_links:
+                                scraped_youtube_links.append(clean_url)
 
+                # 2. Populate Videos from scraped links or fallback to search queries
+                if scraped_youtube_links:
+                    for link in scraped_youtube_links[:3]:
+                        embed_link = link
+                        if "youtube.com/watch?v=" in link:
+                            video_id = link.split("v=")[1].split("&")[0]
+                            embed_link = f"https://www.youtube.com/embed/{video_id}"
+                        elif "youtu.be/" in link:
+                            video_id = link.split("youtu.be/")[1].split("?")[0]
+                            embed_link = f"https://www.youtube.com/embed/{video_id}"
+                            
+                        compiled_videos.append({
+                            "title": f"Targeted Walkthrough: {query.capitalize()}",
+                            "url": link,
+                            "embed": embed_link,
+                            "channel": "Discovered Web Source",
+                            "duration": "N/A"
+                        })
+                
+                # Fallback if scraping is empty: generate dynamic YouTube search links
+                if not compiled_videos:
+                    fallback_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}"
                     compiled_videos.append({
-                        "title": v.get("title", "Advanced Technical Training Lab Walkthrough"),
-                        "url": link,
-                        "embed": embed_link,
-                        "channel": v.get("publisher", "YouTube Creator Network"),
-                        "duration": v.get("duration", "N/A")
+                        "title": f"Video Results for: {query}",
+                        "url": fallback_url,
+                        "embed": fallback_url,
+                        "channel": "YouTube Search Engine",
+                        "duration": "N/A"
                     })
 
-                # Force strictly targeted YouTube playlist searches
-                playlist_results = list(ddg.videos(keywords=f"{query} playlist site:youtube.com", max_results=2))
-                for p in playlist_results[:2]:
-                    link = p.get("content", p.get("url", "#"))
-                    if "youtube.com" not in link and "youtu.be" not in link:
-                        link = p.get("url", f"https://www.youtube.com/results?search_query={query}+playlist")
+                # 3. Populate Playlists
+                fallback_playlist_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}+playlist"
+                compiled_playlists.append({
+                    "title": f"Playlist Series: {query.capitalize()}",
+                    "url": fallback_playlist_url,
+                    "embed": fallback_playlist_url,
+                    "channel": "YouTube Curriculum Network"
+                })
 
-                    embed_link = link
-                    if "list=" in link:
-                        playlist_id = link.split("list=")[1].split("&")[0]
-                        embed_link = f"https://www.youtube.com/embed/videoseries?list={playlist_id}"
-                    elif "youtube.com/watch?v=" in link:
-                        video_id = link.split("v=")[1].split("&")[0]
-                        embed_link = f"https://www.youtube.com/embed/{video_id}"
-
-                    compiled_playlists.append({
-                        "title": p.get("title", "Complete Comprehensive Learning Track / Playlist Series"),
-                        "url": link,
-                        "embed": embed_link,
-                        "channel": p.get("publisher", "YouTube Curriculum Channel")
-                    })
         except Exception as e:
             print(f"⚠️ Embedded scraper log notice: {str(e)}")
             
